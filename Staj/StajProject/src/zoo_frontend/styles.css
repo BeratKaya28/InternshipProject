@@ -1,0 +1,225 @@
+@charset "UTF-8";
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f4f8;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.animal-selection {
+  margin-bottom: 30px;
+}
+
+.animal-selection input {
+  padding: 8px;
+  font-size: 16px;
+  width: 200px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  margin-top: 20px;
+}
+
+.form-row {
+  display: flex;
+  justify-content: left;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 140px;
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.animal-list{
+	display:flex;
+	flex-wrap: wrap;
+	gap: 15px;
+	margin-top: 15px;
+}
+
+.animal-card{
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	padding:15px;
+	width: 200px;
+	background-color: #f9f9f9;
+}
+
+.animal-card h4{
+	margin: 0 0 10px 0;
+	font-size: 1.2em;
+	color: #333;
+}
+
+.animal-card ul{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+.animal-card ul li{
+	margin-bottom: 5px;
+	color: #555;
+	font-size: 0.9;
+}
+
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-group input {
+    width: 100%;
+  }
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button[disabled] {
+  background-color: #ccc;
+  cursor: default;
+}
+.animal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-size: 14px;
+  text-align: left;
+}
+
+.animal-table thead {
+  background-color: #0077cc;
+  color: white;
+  font-weight: bold;
+}
+
+.animal-table th,
+.animal-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.animal-table tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Responsive için */
+@media (max-width: 600px) {
+  .animal-table,
+  .animal-table thead,
+  .animal-table tbody,
+  .animal-table th,
+  .animal-table td,
+  .animal-table tr {
+    display: block;
+  }
+
+  .animal-table thead tr {
+    display: none;
+  }
+
+  .animal-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+
+  .animal-table td {
+    padding-left: 50%;
+    position: relative;
+    text-align: right;
+    font-size: 13px;
+    border-bottom: none;
+  }
+
+  .animal-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 45%;
+    padding-left: 10px;
+    font-weight: bold;
+    text-align: left;
+  }
+  
+  
+  
+  
+  
+}
+
+

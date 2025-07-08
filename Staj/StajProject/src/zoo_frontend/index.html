@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Zoo Management System</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+</head>
+<body>
+<h1>Zoo Management System🐾</h1>
+
+<div class="animal-selection">
+<label for="animalInput">Girmek istediğiniz Hayvanın adını giriniz:</label><br>
+<input type="text" id="animalInput" placeholder="örneğin: Kaplan">
+<button onClick="selectAnimal()">Kaydet</button>
+<button onClick="listAnimal()">Listele</button>
+<button onClick="remove()">Sil</button>
+<button onClick="editAnimal()">Düzenle</button>
+</div>
+
+<div id="form-container"></div>
+
+<h2>Hayvan Listesi</h2>
+<table id="myTable" class="animal-table display">
+<thead>
+<tr>
+	<th>ID</th>
+	<th>Ad</th>
+	<th>Yaş</th>
+	<th>Boy</th>
+	<th>Kilo</th>
+	<th>Hız</th>
+	<th>Renk</th>
+	<th>İşlemler</th>
+</tr>	
+</thead>
+<tbody id="animalList"></tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <script>
+  let dataTable = null;
+  
+  function selectAnimal(){
+	  const animalName = document.getElementById('animalInput').value.trim();
+	  const formContainer = document.getElementById('form-container');
+
+	 if(!animalName){
+		 formContainer.innerHTML="<p style='color:red;'> Lütfen bir hayvan giriniz.</p>";
+		 return;
+	 }
+	 
+	 formContainer.innerHTML= `
+	 <h2>${animalName} Özellik Girişi</h2>
+	 <form id="animalForm">
+	 <div class="form-row">
+	 <div class="form-group">
+	 <label>Yaş:</label>
+	 <input type="number" id="age" placeholder="Yaş"><br>
+	 </div>
+	 <div class="form-group">
+	 <label>Boy(cm):</label>
+	 <input type="number" id="height" placeholder="Boy"><br>
+	 </div>
+	 <div class="form-group">
+	 <label>Kilo(kg):</label>
+	 <input type="number" id="weight" placeholder="Kilo"><br>
+	 </div>
+	 </div>
+	 <div class="form-row">
+	 <div class="form-group">
+	 <label>Hız(km):</label>
+	 <input type="number" id="speed" placeholder="Hız"><br>
+	 </div>
+	 <div class="form-group">
+     <label>Renk:</label>
+     <input type="text" id="color" placeholder="Renk">  
+      </div>
+      </div>
+      <button type="button" onClick="saveAnimal('${animalName}')">Kaydet</button>
+
+      </form>`;
+  }
+  
+  function saveAnimal(name){
+	    const age = document.getElementById("age").value;
+	    const height = document.getElementById("height").value;
+	    const weight = document.getElementById("weight").value;
+	    const speed = document.getElementById("speed").value;	  
+	    const color = document.getElementById("color").value;
+	  
+	    const animalData = {
+	      animalName: name,
+	      age: age,
+	      height: height,
+	      weight: weight,
+	      speed: speed,
+	      color: color	  
+	    };
+
+	    console.log("Hayvan Bilgisi:", animalData);
+
+	    const resultDiv = document.createElement("div");
+	  resultDiv.innerHTML=`
+	  <form class="list">
+	  <h3>${name} Durumu </h3>
+	  <ul>
+	  <li>Yaş: ${age} yıl</li>
+      <li>Boy: ${height} cm</li>
+      <li>Kilo: ${weight} kg</li>
+      <li>Hız: ${speed} km/h</li>
+      <li>Renk: ${color}</li>
+    </ul>
+    </form>`;
+	  
+    const existingResult = document.getElementById("animal-status");
+    if(existingResult) existingResult.remove();
+    resultDiv.id="animal-status";
+    document.body.appendChild(resultDiv);
+
+    fetch("http://localhost:8080/api/animals", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(animalData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Sunucuya kayıt başarılı:", data);
+  })
+  .catch(error => {
+    console.error("Hata oluştu:", error);
+  });
+    
+  }
+
+  function listAnimal() {
+	  fetch("http://localhost:8080/api/animals")
+	    .then(response => {
+	      if (!response.ok) throw new Error("Hayvanlar alınamadı!");
+	      return response.json();
+	    })
+	    .then(data => {
+	      const animalList = document.getElementById("animalList");
+	      if (dataTable) dataTable.destroy();
+	      animalList.innerHTML = "";
+
+	      data.forEach((animal, index) => {
+	        const row = document.createElement("tr");
+	        row.innerHTML = `
+	          <td>${animal.id || "-"}</td>
+	          <td>${animal.animalName || "-"}</td>
+	          <td>${animal.age || "-"}</td>
+	          <td>${animal.height || "-"}</td>
+	          <td>${animal.weight || "-"}</td>
+	          <td>${animal.speed || "-"}</td>
+	          <td>${animal.color || "-"}</td>
+	          <td>
+	            <button onclick="removeAnimal('${animal.animalName}')">Sil</button>
+	            <button onclick="editAnimalFromList('${animal.animalName}')">Düzenle</button>
+	          </td>`;
+	        animalList.appendChild(row);
+	      });
+
+	      dataTable = new DataTable("#myTable", {
+	        language: {
+	          search: "Ara:",
+	          lengthMenu: "Sayfada _MENU_ kayıt göster",
+	          info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
+	          infoEmpty: "Kayıt yok",
+	          infoFiltered: "(_MAX_ kayıt içinden filtrelendi)",
+	          zeroRecords: "Eşleşen kayıt bulunamadı",
+	          paginate: {
+	            first: "İlk",
+	            last: "Son",
+	            next: "İleri",
+	            previous: "Geri"
+	          }
+	        }
+	      });
+	    })
+	    .catch(error => {
+	      console.error("Hayvanları getirirken hata oluştu:", error);
+	      alert("Listeleme sırasında bir hata oluştu.");
+	    });
+	}
+  
+  function removeAnimal(name) {
+	  const formContainer = document.getElementById("form-container");
+	  formContainer.innerHTML = "";
+
+	  fetch(`http://localhost:8080/api/animals/${encodeURIComponent(name)}`, {
+	    method: "DELETE"
+	  })
+	    .then(response => {
+	      if (!response.ok) throw new Error("Silme işlemi başarısız!");
+	      return response.text();
+	    })
+	    .then(message => {
+	      alert(message);
+	      listAnimal(); 
+	    })
+	    .catch(error => {
+	      console.error("Silme hatası:", error);
+	      alert("Silme sırasında hata oluştu.");
+	    });
+	}
+  
+  function editAnimalFromList(name) {
+	  document.getElementById("animalInput").value = name;
+	  editAnimal();
+	}
+  
+  
+    
+    function remove() {
+        const animalName = document.getElementById("animalInput").value.trim();
+        const formContainer = document.getElementById("form-container");
+        formContainer.innerHTML = ""; 
+        if (!animalName) {
+          formContainer.innerHTML = "<p style='color:red;'>Lütfen silinecek hayvanın adını giriniz!</p>";
+          return;
+        }
+        const url = `http://localhost:8080/api/animals/${encodeURIComponent(animalName)}`;
+        fetch(url, { method: "DELETE" })
+          .then(response => {
+            if (!response.ok) throw new Error("Silme işlemi başarısız oldu!");
+            return response.text(); 
+          })
+          .then(message => {
+            formContainer.innerHTML = `<p style="color:green;">${message}</p>`;
+          })
+          .catch(error => {
+            console.error("Silme hatası:", error);
+            formContainer.innerHTML = `<p style="color:red;">Hata: ${error.message}</p>`;
+          });
+      }
+
+      function editAnimal() {
+        const animalName = document.getElementById("animalInput").value.trim();
+        const formContainer = document.getElementById("form-container");
+        formContainer.innerHTML = "";
+
+        if (!animalName) {
+          formContainer.innerHTML = "<p style='color:red;'>Lütfen düzeltilecek hayvanın adını giriniz.</p>";
+          return;
+        }
+
+        const url = `http://localhost:8080/api/animals/${encodeURIComponent(animalName)}`;
+        fetch(url)
+          .then(response => {
+            if (!response.ok) throw new Error("Hayvan bilgileri alınamadı.");
+            return response.json();
+          })
+          .then(data => {
+            formContainer.innerHTML = `
+              <h2>${animalName} Güncelleme Formu</h2>
+              <form id="animalForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Yaş: <input type="number" id="age" value="${data.yas}"></label>
+                  </div>
+                  <div class="form-group">
+                    <label>Boy: <input type="number" id="height" value="${data.boy}"></label>
+                  </div>
+                  <div class="form-group">
+                    <label>Kilo: <input type="number" id="weight" value="${data.kilo}"></label>
+                  </div>
+                  <div class="form-group">
+                    <label>Hız: <input type="number" id="speed" value="${data.hız}"></label>
+                  </div>
+                  <div class="form-group">
+                    <label>Renk: <input type="text" id="color" value="${data.renk}"></label>
+                  </div>
+                </div>
+                <button type="button" onclick="updateAnimal('${animalName}')">Güncelle</button>
+              </form>`;
+          })
+          .catch(error => {
+            formContainer.innerHTML = `<p style="color:red;">Hata: ${error.message}</p>`;
+          });
+      }
+      
+      function fillUpdateForm(name) {
+    	  document.getElementById("animalInput").value = name;
+    	  editAnimal();
+    	}
+
+      function updateAnimal(name) {
+        const age = document.getElementById("age").value;
+        const height = document.getElementById("height").value;
+        const weight = document.getElementById("weight").value;
+        const speed = document.getElementById("speed").value;
+        const color = document.getElementById("color").value;
+        const formContainer = document.getElementById("form-container");
+
+        const animalData = {
+          animalName: name,
+          age: age,
+          height: height,
+          weight: weight,
+          speed: speed,
+          color: color
+        };
+
+        fetch(`http://localhost:8080/api/animals/${encodeURIComponent(name)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(animalData)
+        })
+        .then(response => {
+          if (!response.ok) throw new Error("Güncelleme başarısız!");
+          return response.text();
+        })
+        .then(msg => {
+          formContainer.innerHTML = `<p style="color:green;">${msg}</p>`;
+        })
+        .catch(error => {
+          console.error("Güncelleme hatası:", error);
+          formContainer.innerHTML = `<p style="color:red;">Hata: ${error.message}</p>`;
+        });
+      }
+  
+  
+</script>
+</body>
+
+</html>
